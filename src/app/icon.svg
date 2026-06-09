@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Finjani Aroma">
+  <defs>
+    <linearGradient id="g" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0%" stop-color="#b76740"/>
+      <stop offset="100%" stop-color="#5c6547"/>
+    </linearGradient>
+  </defs>
+  <rect width="128" height="128" rx="24" fill="#f2e4cf"/>
+  <circle cx="64" cy="64" r="44" fill="none" stroke="url(#g)" stroke-width="8"/>
+  <path d="M48 76c6 8 26 8 32-2 4-8-1-18-9-22 5-6 5-14-1-20-8-8-23-6-30 3" fill="none" stroke="#2f2218" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

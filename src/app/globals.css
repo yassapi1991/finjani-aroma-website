@@ -1,0 +1,240 @@
+@import "tailwindcss";
+
+:root {
+  /* Finjani Aroma: light luxury palette */
+  --coffee-bg:      #fcf7ef;
+  --coffee-bg-soft: #f7efe3;
+  --coffee-cream:   #fffdf8;
+  --coffee-card:    #fffaf1;
+  --coffee-muted:   #7b6757;
+  --coffee-gold:    #b8774a;
+  --coffee-line:    #e9dac4;
+  --coffee-olive:   #6f7656;
+  --coffee-sand:    #f3e7d5;
+  --coffee-ink:     #35271d;
+  --coffee-black:   #211911;
+}
+
+@theme inline {
+  --font-sans: var(--font-body);
+}
+
+/* ─── Keyframe Animations ─── */
+
+@keyframes hero-drift {
+  0%, 100% { transform: scale(1.02) translate(0, 0); }
+  50%       { transform: scale(1.07) translate(-10px, -6px); }
+}
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(28px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes pulse-ring {
+  0%   { transform: scale(1);   opacity: 0.55; }
+  100% { transform: scale(1.75); opacity: 0; }
+}
+
+@keyframes toast-in {
+  from { opacity: 0; transform: translateY(12px) scale(0.96); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes shimmer {
+  from { background-position: -400px 0; }
+  to   { background-position: 400px 0; }
+}
+
+@keyframes marquee-x {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+/* ─── Utility animation classes ─── */
+
+.hero-image {
+  animation: hero-drift 22s ease-in-out infinite;
+}
+
+.fade-up {
+  animation: fade-up 0.85s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.fade-up-1 { animation-delay: 0.10s; }
+.fade-up-2 { animation-delay: 0.22s; }
+.fade-up-3 { animation-delay: 0.36s; }
+.fade-up-4 { animation-delay: 0.50s; }
+
+.toast-anim {
+  animation: toast-in 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* ─── Scroll reveal (Intersection Observer powered via JS, fallback via CSS) ─── */
+
+.reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.8s cubic-bezier(0.22, 1, 0.36, 1),
+              transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ─── Base ─── */
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background:
+    radial-gradient(ellipse 80% 60% at 0% 0%, #f7e8d2 0%, transparent 58%),
+    radial-gradient(ellipse 52% 40% at 100% 0%, #fbf1e3 0%, transparent 64%),
+    linear-gradient(160deg, #fffaf2 0%, #fbf4e9 52%, #f7ede0 100%);
+  color: var(--coffee-ink);
+  font-family: var(--font-body), sans-serif;
+}
+
+h1, h2, h3, h4, h5, h6, .font-serif {
+  font-family: var(--font-display), serif;
+}
+
+.page-shell {
+  margin-inline: auto;
+  width: 100%;
+  max-width: 1120px;
+  padding: 3.5rem 1rem;
+}
+
+@media (min-width: 640px) {
+  .page-shell {
+    padding-inline: 1.5rem;
+  }
+}
+
+.soft-panel {
+  border: 1px solid var(--coffee-line);
+  background: color-mix(in srgb, var(--coffee-cream) 84%, var(--coffee-bg-soft));
+  border-radius: 1.15rem;
+  box-shadow: 0 8px 28px rgba(138, 103, 71, 0.08);
+  transition: border-color 0.35s ease, box-shadow 0.35s ease, transform 0.35s ease;
+}
+
+.soft-panel:hover {
+  border-color: color-mix(in srgb, var(--coffee-gold) 40%, var(--coffee-line));
+  box-shadow: 0 16px 36px rgba(130, 85, 46, 0.14);
+  transform: translateY(-2px);
+}
+
+/* Zellige-inspired top accent on cards */
+.soft-panel::before {
+  content: '';
+  display: block;
+  height: 2px;
+  border-radius: 1rem 1rem 0 0;
+  background: linear-gradient(90deg, transparent, var(--coffee-gold) 40%, var(--coffee-sand) 60%, transparent);
+  opacity: 0;
+  transition: opacity 0.4s;
+}
+
+.soft-panel:hover::before {
+  opacity: 1;
+}
+
+.section-ivory {
+  background: linear-gradient(160deg, #fffdf8 0%, #f9f0e4 100%);
+}
+
+.section-latte {
+  background: linear-gradient(165deg, #faf2e8 0%, #f4e6d4 100%);
+}
+
+.btn-lux-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-radius: 9999px;
+  border: 1px solid color-mix(in srgb, var(--coffee-olive) 72%, white);
+  background: linear-gradient(145deg, color-mix(in srgb, var(--coffee-olive) 92%, white), color-mix(in srgb, var(--coffee-olive) 74%, #2b2f23));
+  color: var(--coffee-cream);
+  box-shadow: 0 10px 24px rgba(84, 95, 61, 0.24);
+  transition: transform 0.3s ease, box-shadow 0.3s ease, filter 0.3s ease;
+}
+
+.btn-lux-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 14px 28px rgba(84, 95, 61, 0.28);
+  filter: saturate(1.08) brightness(1.03);
+}
+
+.btn-lux-soft {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-radius: 9999px;
+  border: 1px solid var(--coffee-line);
+  background: color-mix(in srgb, var(--coffee-cream) 88%, white);
+  color: var(--coffee-ink);
+  box-shadow: 0 8px 20px rgba(138, 103, 71, 0.09);
+  transition: transform 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+}
+
+.btn-lux-soft:hover {
+  transform: translateY(-1px);
+  border-color: color-mix(in srgb, var(--coffee-gold) 50%, var(--coffee-line));
+  color: var(--coffee-gold);
+}
+
+.marquee-shell {
+  overflow: hidden;
+}
+
+.marquee-track {
+  display: flex;
+  width: max-content;
+  gap: 0.75rem;
+  animation: marquee-x 26s linear infinite;
+  padding-inline: 1rem;
+}
+
+.marquee-track::after {
+  content: "";
+  display: block;
+  width: 0;
+}
+
+.marquee-pill {
+  white-space: nowrap;
+  border: 1px solid var(--coffee-line);
+  background: color-mix(in srgb, var(--coffee-cream) 90%, white);
+  color: var(--coffee-gold);
+  border-radius: 999px;
+  padding: 0.45rem 0.9rem;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+

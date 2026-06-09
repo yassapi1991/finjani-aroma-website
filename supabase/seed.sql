@@ -1,0 +1,10 @@
+insert into public.products (category, type, name, description, origin, price, image_url)
+values
+  ('Café', 'Grains', 'Café Marocain', 'Assemblage intense avec notes de datte et cacao, conçu pour l''espresso et les méthodes lentes.', 'Marrakech, Maroc', 55, 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=1200&q=80'),
+  ('Café', 'Moulu', 'Arabica Signature', 'Profil floral et caramel pour une tasse ronde, élégante et persistante.', 'Sidamo, Éthiopie', 62, 'https://images.unsplash.com/photo-1517705008128-361805f42e86?auto=format&fit=crop&w=1200&q=80'),
+  ('Café', 'Moulu', 'Café Turc', 'Mouture extra-fine et texture veloutée pour une expérience traditionnelle raffinée.', 'Istanbul, Turquie', 48, 'https://images.unsplash.com/photo-1521017432531-fbd92d768814?auto=format&fit=crop&w=1200&q=80'),
+  ('Café', 'Grains', 'Espresso Noir', 'Torréfaction sombre avec finale chocolat noir et épices douces.', 'Yirgacheffe, Éthiopie', 58, 'https://images.unsplash.com/photo-1461023058943-07fcbe16d735?auto=format&fit=crop&w=1200&q=80'),
+  ('Café', 'Moulu', 'Cappuccino Royal', 'Mélange équilibré pensé pour une mousse dense et une texture onctueuse.', 'Fès, Maroc', 46, 'https://images.unsplash.com/photo-1497636577773-f1231844b336?auto=format&fit=crop&w=1200&q=80'),
+  ('Café', 'Moulu', 'Thé à la Menthe Premium', 'Infusion marocaine premium à la menthe fraîche et thé vert sélectionné.', 'Ourika, Maroc', 35, 'https://images.unsplash.com/photo-1564894809611-1742fc40ed80?auto=format&fit=crop&w=1200&q=80'),
+  ('Gelato', 'Artisanal', 'Gelato Pistache de Marrakech', 'Gelato artisanal pistache avec une texture soyeuse et un goût intense.', 'Marrakech, Maroc', 42, 'https://images.unsplash.com/photo-1563805042-7684c019e1cb?auto=format&fit=crop&w=1200&q=80'),
+  ('Tarte Glacée', 'Signature', 'Tarte Glacée Moka', 'Biscuit cacao, crème moka et glace vanille pour une finition premium.', 'Signature Noir Bean', 98, 'https://images.unsplash.com/photo-1578985545062-69928b1d9587?auto=format&fit=crop&w=1200&q=80');
