@@ -48,8 +48,8 @@ interface CartContextValue {
 const CartContext = createContext<CartContextValue | undefined>(undefined);
 const CART_STORAGE_KEY = "finjani_cart_items";
 
-function formatLineTotal(value: number) {
-  return `${value} dh`;
+export function formatDhAmount(value: number) {
+  return `${value} MAD`;
 }
 
 function buildOrderMessage(items: CartItem[]) {
@@ -59,7 +59,7 @@ function buildOrderMessage(items: CartItem[]) {
 
   const lines = items.map((item) => {
     const lineTotal = item.unitPrice * item.quantity;
-    return `- ${item.name} ${item.weight} x${item.quantity} = ${lineTotal} dh`;
+    return `- ${item.name} ${item.weight} x${item.quantity} = ${formatDhAmount(lineTotal)}`;
   });
 
   const total = items.reduce((sum, item) => sum + item.unitPrice * item.quantity, 0);
@@ -71,10 +71,7 @@ function buildOrderMessage(items: CartItem[]) {
     "",
     ...lines,
     "",
-    `Total : ${formatLineTotal(total)}`,
-    "",
-    "Nom :",
-    "Téléphone :",
+    `Total : ${formatDhAmount(total)}`,
     "",
     "Merci.",
   ].join("\n");

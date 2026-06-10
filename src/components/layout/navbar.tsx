@@ -5,11 +5,10 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { FaShoppingBag } from "react-icons/fa";
+import { FaShoppingCart } from "react-icons/fa";
 import { cn } from "@/lib/utils";
 import { getWhatsAppUrl } from "@/lib/brand";
 import { useCart } from "@/components/cart/cart-context";
-import { CartDrawer } from "@/components/cart/cart-drawer";
 
 const links = [
   { href: "/", label: "Accueil" },
@@ -22,7 +21,7 @@ export function Navbar() {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
   const whatsappHref = getWhatsAppUrl();
-  const { itemCount, setIsOpen, notice, clearNotice } = useCart();
+  const { itemCount } = useCart();
 
   return (
     <header className="sticky top-0 z-50 border-b border-[var(--coffee-line)] bg-[var(--coffee-cream)]/92 backdrop-blur-xl">
@@ -74,61 +73,56 @@ export function Navbar() {
           >
             WhatsApp
           </Link>
-          <button
-            type="button"
-            onClick={() => {
-              clearNotice();
-              setIsOpen(true);
-            }}
+          <Link
+            href="/panier"
             aria-label="Ouvrir le panier"
-            className="relative inline-flex h-10 w-10 items-center justify-center rounded-full border border-[var(--coffee-line)] bg-[var(--coffee-card)] text-[var(--coffee-ink)] transition-all duration-300 hover:border-[var(--coffee-gold)] hover:text-[var(--coffee-gold)]"
+            className="relative inline-flex h-10 w-10 items-center justify-center rounded-full border border-[var(--coffee-line)] bg-[var(--coffee-card)] text-[var(--coffee-gold)] transition-all duration-300 hover:border-[var(--coffee-ink)] hover:text-[var(--coffee-ink)]"
           >
-            <FaShoppingBag className="h-4 w-4" />
+            <FaShoppingCart className="h-4 w-4" />
             {itemCount > 0 && (
-              <span className="absolute -right-1 -top-1 min-w-[1.2rem] rounded-full bg-[var(--coffee-gold)] px-1.5 py-0.5 text-[10px] font-semibold text-white">
+              <span className="absolute -right-1 -top-1 min-w-[1.15rem] rounded-full bg-[var(--coffee-ink)] px-1.5 py-0.5 text-[10px] font-semibold text-white">
                 {itemCount}
               </span>
             )}
-          </button>
+          </Link>
         </nav>
-        <button
-          type="button"
-          onClick={() => {
-            clearNotice();
-            setIsOpen(true);
-          }}
-          aria-label="Ouvrir le panier"
-          className="relative inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[var(--coffee-line)] bg-[color-mix(in_srgb,var(--coffee-cream)_78%,white)] text-[var(--coffee-ink)] md:hidden"
-        >
-          <FaShoppingBag className="h-4 w-4" />
-          {itemCount > 0 && (
-            <span className="absolute -right-1 -top-1 min-w-[1.2rem] rounded-full bg-[var(--coffee-gold)] px-1.5 py-0.5 text-[10px] font-semibold text-white">
-              {itemCount}
-            </span>
-          )}
-        </button>
+        <div className="flex items-center gap-2 md:hidden">
+          <Link
+            href="/panier"
+            aria-label="Ouvrir le panier"
+            className="relative inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[var(--coffee-line)] bg-[color-mix(in_srgb,var(--coffee-cream)_78%,white)] text-[var(--coffee-gold)]"
+          >
+            <FaShoppingCart className="h-4 w-4" />
+            {itemCount > 0 && (
+              <span className="absolute -right-1 -top-1 min-w-[1.15rem] rounded-full bg-[var(--coffee-ink)] px-1.5 py-0.5 text-[10px] font-semibold text-white">
+                {itemCount}
+              </span>
+            )}
+          </Link>
 
-        {/* Mobile hamburger */}
-        <button
-          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[var(--coffee-line)] bg-[color-mix(in_srgb,var(--coffee-cream)_78%,white)] md:hidden"
-          aria-label="Toggle menu"
-          onClick={() => setOpen((value) => !value)}
-        >
-          <span className="relative block h-4 w-5">
-            <motion.span
-              animate={{ rotate: open ? 45 : 0, y: open ? 6 : 0 }}
-              className="absolute top-0 block h-px w-5 origin-center bg-[var(--coffee-ink)]"
-            />
-            <motion.span
-              animate={{ opacity: open ? 0 : 1 }}
-              className="absolute top-1.5 block h-px w-5 bg-[var(--coffee-ink)]"
-            />
-            <motion.span
-              animate={{ rotate: open ? -45 : 0, y: open ? -6 : 0 }}
-              className="absolute top-3 block h-px w-5 origin-center bg-[var(--coffee-ink)]"
-            />
-          </span>
-        </button>
+          {/* Mobile hamburger */}
+          <button
+            type="button"
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[var(--coffee-line)] bg-[color-mix(in_srgb,var(--coffee-cream)_78%,white)]"
+            aria-label="Toggle menu"
+            onClick={() => setOpen((value) => !value)}
+          >
+            <span className="relative block h-4 w-5">
+              <motion.span
+                animate={{ rotate: open ? 45 : 0, y: open ? 6 : 0 }}
+                className="absolute top-0 block h-px w-5 origin-center bg-[var(--coffee-ink)]"
+              />
+              <motion.span
+                animate={{ opacity: open ? 0 : 1 }}
+                className="absolute top-1.5 block h-px w-5 bg-[var(--coffee-ink)]"
+              />
+              <motion.span
+                animate={{ rotate: open ? -45 : 0, y: open ? -6 : 0 }}
+                className="absolute top-3 block h-px w-5 origin-center bg-[var(--coffee-ink)]"
+              />
+            </span>
+          </button>
+        </div>
       </div>
       <AnimatePresence>
         {open ? (
@@ -170,20 +164,6 @@ export function Navbar() {
         ) : null}
       </AnimatePresence>
 
-      <AnimatePresence>
-        {notice ? (
-          <motion.div
-            initial={{ opacity: 0, y: -10, scale: 0.98 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -10, scale: 0.98 }}
-            className="pointer-events-none fixed right-4 top-[92px] z-[90] rounded-full border border-[var(--coffee-line)] bg-[var(--coffee-card)] px-4 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-[var(--coffee-ink)] shadow-[0_12px_28px_rgba(92,63,39,0.16)]"
-          >
-            {notice}
-          </motion.div>
-        ) : null}
-      </AnimatePresence>
-
-      <CartDrawer />
     </header>
   );
 }

@@ -16,7 +16,7 @@ const grainsProducts: Product[] = [
       { label: "500g", price: 68 },
       { label: "1kg", price: 136 },
     ],
-    imageUrl: "/products/cafe-special.jpg",
+    imageUrl: "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=900&q=80",
   },
   {
     id: "g2",
@@ -74,7 +74,7 @@ const grainsProducts: Product[] = [
     price: 62,
     priceNote: "250g",
     variants: [{ label: "250g", price: 62 }],
-    imageUrl: "/products/cafe-arabia-saoudia.jpg",
+    imageUrl: "https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&w=900&q=80",
   },
   {
     id: "g6",

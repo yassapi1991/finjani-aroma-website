@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { FaWhatsapp } from "react-icons/fa";
-import { useCart } from "@/components/cart/cart-context";
+import { formatDhAmount, useCart } from "@/components/cart/cart-context";
 
 export function CartDrawer() {
   const {
@@ -38,10 +38,15 @@ export function CartDrawer() {
         className="absolute right-0 top-0 h-full w-full max-w-md border-l border-[var(--coffee-line)] bg-[var(--coffee-cream)] shadow-[0_26px_48px_rgba(92,63,39,0.22)]"
       >
         <div className="flex h-full flex-col">
-          <div className="flex items-center justify-between border-b border-[var(--coffee-line)] px-5 py-4">
-            <div>
+          <div className="flex items-start justify-between border-b border-[var(--coffee-line)] px-5 py-4">
+            <div className="space-y-2">
               <p className="text-[10px] uppercase tracking-[0.18em] text-[var(--coffee-gold)]">Votre Panier</p>
               <h3 className="font-serif text-2xl text-[var(--coffee-ink)]">Commande WhatsApp</h3>
+              <div className="flex items-center gap-2 text-xs text-[var(--coffee-muted)]">
+                <span>{items.length} ligne(s)</span>
+                <span>•</span>
+                <span>{formatDhAmount(total)}</span>
+              </div>
             </div>
             <button
               onClick={() => setIsOpen(false)}
@@ -69,7 +74,7 @@ export function CartDrawer() {
                     <div className="min-w-0 flex-1">
                       <p className="line-clamp-1 font-serif text-lg text-[var(--coffee-ink)]">{item.name}</p>
                       <p className="text-xs uppercase tracking-[0.12em] text-[var(--coffee-gold)]">{item.weight}</p>
-                      <p className="text-sm text-[var(--coffee-muted)]">{item.unitPrice} dh / unité</p>
+                      <p className="text-sm text-[var(--coffee-muted)]">{formatDhAmount(item.unitPrice)} / unité</p>
                     </div>
                   </div>
 
@@ -94,7 +99,7 @@ export function CartDrawer() {
 
                     <div className="text-right">
                       <p className="text-[10px] uppercase tracking-[0.14em] text-[var(--coffee-muted)]">Sous-total</p>
-                      <p className="font-serif text-xl text-[var(--coffee-gold)]">{item.unitPrice * item.quantity} dh</p>
+                      <p className="font-serif text-xl text-[var(--coffee-gold)]">{formatDhAmount(item.unitPrice * item.quantity)}</p>
                       <button
                         onClick={() => removeItem(item.key)}
                         className="text-[11px] uppercase tracking-[0.12em] text-[var(--coffee-muted)] hover:text-[var(--coffee-gold)]"
@@ -111,7 +116,7 @@ export function CartDrawer() {
           <div className="border-t border-[var(--coffee-line)] p-4">
             <div className="mb-4 flex items-center justify-between">
               <span className="text-sm uppercase tracking-[0.14em] text-[var(--coffee-muted)]">Total</span>
-              <span className="font-serif text-3xl text-[var(--coffee-gold)]">{total} dh</span>
+              <span className="font-serif text-3xl text-[var(--coffee-gold)]">{formatDhAmount(total)}</span>
             </div>
 
             <div className="grid gap-2">

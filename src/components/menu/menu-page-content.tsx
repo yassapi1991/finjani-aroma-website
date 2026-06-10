@@ -9,7 +9,7 @@ import { LuxuryMenuProductCard } from "@/components/menu/luxury-menu-product-car
 import { SectionTitle } from "@/components/sections/section-title";
 import { QrMenu } from "@/components/menu/qr-menu";
 import { CategoryGrid, MenuCategory } from "@/components/menu/category-grid";
-import { useCart } from "@/components/cart/cart-context";
+import { getWhatsAppUrl } from "@/lib/brand";
 import { Product } from "@/lib/types";
 import {
   grainsProducts,
@@ -141,7 +141,6 @@ function MenuSection({
 export function MenuPageContent() {
   const [activeFilter, setActiveFilter] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
-  const { getWhatsAppOrderUrl, setIsOpen, items } = useCart();
 
   // Calculate product counts
   const filterOptionsWithCounts = filterOptions.map((filter) => ({
@@ -176,7 +175,7 @@ export function MenuPageContent() {
     return products;
   }, [activeFilter, searchQuery]);
 
-  const whatsappHref = getWhatsAppOrderUrl();
+  const whatsappHref = getWhatsAppUrl();
 
   return (
     <div>
@@ -226,25 +225,15 @@ export function MenuPageContent() {
           <div className="mt-8 flex flex-wrap gap-3">
             <button
               type="button"
-              onClick={() => {
-                if (items.length === 0) {
-                  setIsOpen(true);
-                  return;
-                }
-                window.open(whatsappHref, "_blank", "noopener,noreferrer");
-              }}
+              onClick={() => window.open(whatsappHref, "_blank", "noopener,noreferrer")}
               className="btn-lux-primary px-7 py-3 text-xs font-semibold uppercase tracking-[0.2em]"
             >
               <FaWhatsapp className="h-4 w-4" />
               Commander via WhatsApp
             </button>
-            <button
-              type="button"
-              onClick={() => setIsOpen(true)}
-              className="btn-lux-soft px-7 py-3 text-xs uppercase tracking-[0.18em]"
-            >
+            <Link href="/panier" className="btn-lux-soft px-7 py-3 text-xs uppercase tracking-[0.18em]">
               Voir le Panier
-            </button>
+            </Link>
             <Link
               href="/contact"
               className="btn-lux-soft px-7 py-3 text-xs uppercase tracking-[0.18em]"
