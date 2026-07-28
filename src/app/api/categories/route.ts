@@ -62,10 +62,27 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: payload.error.issues[0]?.message || "Invalid payload" }, { status: 400 });
   }
 
+  const nextName = payload.data.name.trim();
+
+  const { data: existingCategory, error: existingCategoryError } = await supabase
+    .from("categories")
+    .select("id")
+    .ilike("name", nextName)
+    .limit(1)
+    .maybeSingle();
+
+  if (existingCategoryError) {
+    return NextResponse.json({ error: existingCategoryError.message }, { status: 500 });
+  }
+
+  if (existingCategory) {
+    return NextResponse.json({ error: "A category with this name already exists." }, { status: 409 });
+  }
+
   const { data, error } = await supabase
     .from("categories")
     .insert({
-      name: payload.data.name,
+      name: nextName,
       is_active: payload.data.isActive,
     })
     .select("id, name, is_active, created_at")

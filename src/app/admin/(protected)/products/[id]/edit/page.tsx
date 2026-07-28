@@ -21,6 +21,43 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
   const [error, setError] = useState("");
   const [id, setId] = useState("");
 
+  async function loadProductAndCategories(productId: string) {
+    setLoading(true);
+    setError("");
+
+    try {
+      const [productsResponse, categoriesResponse] = await Promise.all([
+        fetch("/api/products?includeInactive=1", { cache: "no-store" }),
+        fetch("/api/categories?includeInactive=1", { cache: "no-store" }),
+      ]);
+
+      const productsData = (await productsResponse.json().catch(() => ({}))) as { products?: Product[]; error?: string };
+      const categoriesData = (await categoriesResponse.json().catch(() => ({}))) as {
+        categories?: CategoryOption[];
+        error?: string;
+      };
+
+      if (!productsResponse.ok) {
+        throw new Error(productsData.error || "Unable to load products");
+      }
+      if (!categoriesResponse.ok) {
+        throw new Error(categoriesData.error || "Unable to load categories");
+      }
+
+      const found = (productsData.products || []).find((item) => item.id === productId) || null;
+      if (!found) {
+        throw new Error("Product not found");
+      }
+
+      setProduct(found);
+      setCategories(categoriesData.categories || []);
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : "Unable to load product");
+    } finally {
+      setLoading(false);
+    }
+  }
+
   useEffect(() => {
     void params.then((value) => setId(value.id));
   }, [params]);
@@ -28,44 +65,29 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
   useEffect(() => {
     if (!id) return;
 
-    async function load() {
-      setLoading(true);
-      setError("");
+    void loadProductAndCategories(id);
+  }, [id]);
 
-      try {
-        const [productsResponse, categoriesResponse] = await Promise.all([
-          fetch("/api/products?includeInactive=1", { cache: "no-store" }),
-          fetch("/api/categories?includeInactive=1", { cache: "no-store" }),
-        ]);
+  useEffect(() => {
+    if (!id) return;
 
-        const productsData = (await productsResponse.json().catch(() => ({}))) as { products?: Product[]; error?: string };
-        const categoriesData = (await categoriesResponse.json().catch(() => ({}))) as {
-          categories?: CategoryOption[];
-          error?: string;
-        };
+    function handleCategoriesUpdated() {
+      void loadProductAndCategories(id);
+    }
 
-        if (!productsResponse.ok) {
-          throw new Error(productsData.error || "Unable to load products");
-        }
-        if (!categoriesResponse.ok) {
-          throw new Error(categoriesData.error || "Unable to load categories");
-        }
-
-        const found = (productsData.products || []).find((item) => item.id === id) || null;
-        if (!found) {
-          throw new Error("Product not found");
-        }
-
-        setProduct(found);
-        setCategories(categoriesData.categories || []);
-      } catch (cause) {
-        setError(cause instanceof Error ? cause.message : "Unable to load product");
-      } finally {
-        setLoading(false);
+    function handleStorage(event: StorageEvent) {
+      if (event.key === "categories-updated-at") {
+        void loadProductAndCategories(id);
       }
     }
 
-    void load();
+    window.addEventListener("categories-updated", handleCategoriesUpdated);
+    window.addEventListener("storage", handleStorage);
+
+    return () => {
+      window.removeEventListener("categories-updated", handleCategoriesUpdated);
+      window.removeEventListener("storage", handleStorage);
+    };
   }, [id]);
 
   async function updateProduct(values: ProductFormValues) {

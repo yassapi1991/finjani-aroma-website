@@ -34,6 +34,11 @@ export default function CategoriesPage() {
     }
   }
 
+  function announceCategoryUpdate() {
+    window.dispatchEvent(new Event("categories-updated"));
+    window.localStorage.setItem("categories-updated-at", String(Date.now()));
+  }
+
   useEffect(() => {
     void load();
   }, []);
@@ -54,7 +59,8 @@ export default function CategoriesPage() {
       return;
     }
 
-    setCategories((prev) => [...prev, data.category!].sort((a, b) => a.name.localeCompare(b.name)));
+    await load();
+    announceCategoryUpdate();
     setNewName("");
   }
 
@@ -74,7 +80,8 @@ export default function CategoriesPage() {
       return;
     }
 
-    setCategories((prev) => prev.map((item) => (item.id === category.id ? data.category! : item)));
+    await load();
+    announceCategoryUpdate();
   }
 
   async function toggleCategory(category: Category) {
@@ -90,7 +97,8 @@ export default function CategoriesPage() {
       return;
     }
 
-    setCategories((prev) => prev.map((item) => (item.id === category.id ? data.category! : item)));
+    await load();
+    announceCategoryUpdate();
   }
 
   async function deleteCategory(category: Category) {
@@ -104,7 +112,8 @@ export default function CategoriesPage() {
       return;
     }
 
-    setCategories((prev) => prev.filter((item) => item.id !== category.id));
+    await load();
+    announceCategoryUpdate();
   }
 
   return (

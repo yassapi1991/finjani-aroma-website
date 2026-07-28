@@ -18,26 +18,46 @@ export default function NewProductPage() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
+  async function loadCategories() {
+    setLoading(true);
+    try {
+      const response = await fetch("/api/categories?includeInactive=1", { cache: "no-store" });
+      const data = (await response.json().catch(() => ({}))) as { categories?: CategoryOption[]; error?: string };
+
+      if (!response.ok) {
+        throw new Error(data.error || "Unable to load categories");
+      }
+
+      setCategories(data.categories || []);
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : "Unable to load categories");
+    } finally {
+      setLoading(false);
+    }
+  }
+
   useEffect(() => {
-    async function load() {
-      setLoading(true);
-      try {
-        const response = await fetch("/api/categories?includeInactive=1", { cache: "no-store" });
-        const data = (await response.json().catch(() => ({}))) as { categories?: CategoryOption[]; error?: string };
+    void loadCategories();
+  }, []);
 
-        if (!response.ok) {
-          throw new Error(data.error || "Unable to load categories");
-        }
+  useEffect(() => {
+    function handleCategoriesUpdated() {
+      void loadCategories();
+    }
 
-        setCategories(data.categories || []);
-      } catch (cause) {
-        setError(cause instanceof Error ? cause.message : "Unable to load categories");
-      } finally {
-        setLoading(false);
+    function handleStorage(event: StorageEvent) {
+      if (event.key === "categories-updated-at") {
+        void loadCategories();
       }
     }
 
-    void load();
+    window.addEventListener("categories-updated", handleCategoriesUpdated);
+    window.addEventListener("storage", handleStorage);
+
+    return () => {
+      window.removeEventListener("categories-updated", handleCategoriesUpdated);
+      window.removeEventListener("storage", handleStorage);
+    };
   }, []);
 
   async function createProduct(values: ProductFormValues) {

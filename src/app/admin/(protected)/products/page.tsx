@@ -60,6 +60,26 @@ export default function ProductsPage() {
     void loadData();
   }, []);
 
+  useEffect(() => {
+    function handleCategoriesUpdated() {
+      void loadData();
+    }
+
+    function handleStorage(event: StorageEvent) {
+      if (event.key === "categories-updated-at") {
+        void loadData();
+      }
+    }
+
+    window.addEventListener("categories-updated", handleCategoriesUpdated);
+    window.addEventListener("storage", handleStorage);
+
+    return () => {
+      window.removeEventListener("categories-updated", handleCategoriesUpdated);
+      window.removeEventListener("storage", handleStorage);
+    };
+  }, []);
+
   const filtered = useMemo(() => {
     let list = [...products];
 

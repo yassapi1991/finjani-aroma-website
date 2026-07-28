@@ -32,9 +32,43 @@ export async function PUT(request: Request, { params }: Params) {
 
   const { id } = await params;
 
+  const { data: currentCategory, error: currentCategoryError } = await supabase
+    .from("categories")
+    .select("id, name")
+    .eq("id", id)
+    .single();
+
+  if (currentCategoryError || !currentCategory) {
+    return NextResponse.json({ error: currentCategoryError?.message || "Category not found" }, { status: 404 });
+  }
+
+  const nextName = payload.data.name?.trim();
+
   const updates: { name?: string; is_active?: boolean } = {};
-  if (typeof payload.data.name === "string") updates.name = payload.data.name;
+  if (typeof nextName === "string" && nextName.length > 0) updates.name = nextName;
   if (typeof payload.data.isActive === "boolean") updates.is_active = payload.data.isActive;
+
+  if (!updates.name && typeof updates.is_active !== "boolean") {
+    return NextResponse.json({ error: "No updates provided" }, { status: 400 });
+  }
+
+  if (updates.name && updates.name.toLowerCase() !== currentCategory.name.toLowerCase()) {
+    const { data: existingName, error: existingNameError } = await supabase
+      .from("categories")
+      .select("id")
+      .ilike("name", updates.name)
+      .neq("id", id)
+      .limit(1)
+      .maybeSingle();
+
+    if (existingNameError) {
+      return NextResponse.json({ error: existingNameError.message }, { status: 500 });
+    }
+
+    if (existingName) {
+      return NextResponse.json({ error: "A category with this name already exists." }, { status: 409 });
+    }
+  }
 
   const { data, error } = await supabase
     .from("categories")
@@ -45,6 +79,17 @@ export async function PUT(request: Request, { params }: Params) {
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+
+  if (updates.name && updates.name !== currentCategory.name) {
+    const { error: productsRenameError } = await supabase
+      .from("products")
+      .update({ category: updates.name })
+      .eq("category", currentCategory.name);
+
+    if (productsRenameError) {
+      return NextResponse.json({ error: productsRenameError.message }, { status: 500 });
+    }
   }
 
   return NextResponse.json({
@@ -77,7 +122,7 @@ export async function DELETE(_request: Request, { params }: Params) {
     .single();
 
   if (categoryError) {
-    return NextResponse.json({ error: categoryError.message }, { status: 500 });
+    return NextResponse.json({ error: categoryError.message }, { status: 404 });
   }
 
   const { count, error: productsError } = await supabase
