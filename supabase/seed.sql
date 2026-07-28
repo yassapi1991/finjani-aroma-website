@@ -1,10 +1,19 @@
-insert into public.products (category, type, name, description, origin, price, image_url)
+insert into public.categories (name, is_active)
 values
-  ('Café', 'Grains', 'Café Marocain', 'Assemblage intense avec notes de datte et cacao, conçu pour l''espresso et les méthodes lentes.', 'Marrakech, Maroc', 55, 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=1200&q=80'),
-  ('Café', 'Moulu', 'Arabica Signature', 'Profil floral et caramel pour une tasse ronde, élégante et persistante.', 'Sidamo, Éthiopie', 62, 'https://images.unsplash.com/photo-1517705008128-361805f42e86?auto=format&fit=crop&w=1200&q=80'),
-  ('Café', 'Moulu', 'Café Turc', 'Mouture extra-fine et texture veloutée pour une expérience traditionnelle raffinée.', 'Istanbul, Turquie', 48, 'https://images.unsplash.com/photo-1521017432531-fbd92d768814?auto=format&fit=crop&w=1200&q=80'),
-  ('Café', 'Grains', 'Espresso Noir', 'Torréfaction sombre avec finale chocolat noir et épices douces.', 'Yirgacheffe, Éthiopie', 58, 'https://images.unsplash.com/photo-1461023058943-07fcbe16d735?auto=format&fit=crop&w=1200&q=80'),
-  ('Café', 'Moulu', 'Cappuccino Royal', 'Mélange équilibré pensé pour une mousse dense et une texture onctueuse.', 'Fès, Maroc', 46, 'https://images.unsplash.com/photo-1497636577773-f1231844b336?auto=format&fit=crop&w=1200&q=80'),
-  ('Café', 'Moulu', 'Thé à la Menthe Premium', 'Infusion marocaine premium à la menthe fraîche et thé vert sélectionné.', 'Ourika, Maroc', 35, 'https://images.unsplash.com/photo-1564894809611-1742fc40ed80?auto=format&fit=crop&w=1200&q=80'),
-  ('Gelato', 'Artisanal', 'Gelato Pistache de Marrakech', 'Gelato artisanal pistache avec une texture soyeuse et un goût intense.', 'Marrakech, Maroc', 42, 'https://images.unsplash.com/photo-1563805042-7684c019e1cb?auto=format&fit=crop&w=1200&q=80'),
-  ('Tarte Glacée', 'Signature', 'Tarte Glacée Moka', 'Biscuit cacao, crème moka et glace vanille pour une finition premium.', 'Signature Noir Bean', 98, 'https://images.unsplash.com/photo-1578985545062-69928b1d9587?auto=format&fit=crop&w=1200&q=80');
+  ('Café en Grains', true),
+  ('Gelato Italiano', true),
+  ('Tartes Glacées', true)
+on conflict (name) do update set is_active = excluded.is_active;
+
+insert into public.products (category, type, name, description, origin, price, image_url, is_active)
+values
+  ('Café en Grains', 'Spécial', 'Café Spécial', 'Blend signature Finjani Aroma, rond et aromatique, pensé pour une extraction riche en espresso.', 'Blend Maison', 34, 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=900&q=80', true),
+  ('Café en Grains', 'Moka', 'Café Moka', 'Profil fruité et cacao, inspiré des grands mokas, avec une finale élégante.', 'Éthiopie', 37, '/products/cafe-moka.jpg', true),
+  ('Café en Grains', 'Arabia', 'Café Arabia', 'Grains délicats et parfumés pour une tasse soyeuse, notes florales et douceur équilibrée.', 'Arabia Blend', 46, '/products/cafe-arabia.jpg', true),
+  ('Café en Grains', 'Marocain', 'Café Marocain', 'Recette inspirée du patrimoine marocain, épices fines et caractère chaleureux.', 'Maroc', 40, '/products/cafe-marocain.jpg', true),
+  ('Café en Grains', 'Arabia Saoudia', 'Café Arabia Saoudia', 'Assemblage oriental premium aux notes de cardamome et safran, intense et raffiné.', 'Arabie Saoudite', 62, 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&w=900&q=80', true),
+  ('Café en Grains', 'Chamia', 'Café Chamia', 'Sélection d''inspiration levantine, épicée et profonde, pour les amateurs de profils rares.', 'Levant', 94, '/products/cafe-chamia.jpg', true),
+  ('Gelato Italiano', 'Vanille', 'Gelato Vanille', 'Vanille premium à texture dense et crémeuse, finition douce et élégante.', 'Atelier Finjani', 15, 'https://images.unsplash.com/photo-1563805042-7684c019e1cb?auto=format&fit=crop&w=900&q=80', true),
+  ('Gelato Italiano', 'Pistache', 'Gelato Pistache', 'Pistache torréfiée au style italien, goût intense et texture veloutée.', 'Italie', 17, 'https://images.unsplash.com/photo-1497034825429-c343d7c6a68f?auto=format&fit=crop&w=900&q=80', true),
+  ('Tartes Glacées', 'Chocolat', 'Tarte Glacée Chocolat', 'Cœur glacé chocolat noir et biscuit fin, finition premium signée Finjani.', 'Atelier Finjani', 140, 'https://images.unsplash.com/photo-1551024506-0bccd828d307?auto=format&fit=crop&w=900&q=80', true)
+on conflict do nothing;

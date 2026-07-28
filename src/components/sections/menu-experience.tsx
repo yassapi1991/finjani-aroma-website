@@ -3,23 +3,42 @@
 import Image from "next/image";
 import { useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { grainsProducts, gelatoProducts, tartesGlaceesProducts } from "@/lib/sample-products";
 import { Product } from "@/lib/types";
 
-const categorySets = [
-  { id: "all", label: "Tous", items: [...grainsProducts, ...gelatoProducts, ...tartesGlaceesProducts] },
-  { id: "grains", label: "Café en Grains", items: grainsProducts },
-  { id: "gelato", label: "Gelato Italiano", items: gelatoProducts },
-  { id: "tartes", label: "Tartes Glacées", items: tartesGlaceesProducts },
-] as const;
+function slugifyCategory(value: string) {
+  return value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
 
-export function MenuExperience() {
-  const [activeCategory, setActiveCategory] = useState<(typeof categorySets)[number]["id"]>("all");
+interface MenuExperienceProps {
+  initialProducts: Product[];
+}
+
+export function MenuExperience({ initialProducts }: MenuExperienceProps) {
+  const categorySets = useMemo(() => {
+    const activeProducts = initialProducts.filter((item) => item.isActive !== false);
+    const categories = Array.from(new Set(activeProducts.map((item) => item.category))).filter(Boolean);
+
+    return [
+      { id: "all", label: "Tous", items: activeProducts },
+      ...categories.map((category) => ({
+        id: slugifyCategory(category),
+        label: category,
+        items: activeProducts.filter((item) => item.category === category),
+      })),
+    ];
+  }, [initialProducts]);
+
+  const [activeCategory, setActiveCategory] = useState("all");
 
   const products = useMemo(() => {
-    const selected = categorySets.find((set) => set.id === activeCategory);
+    const selected = categorySets.find((set) => set.id === activeCategory) ?? categorySets[0];
     return (selected?.items ?? []).slice(0, 8);
-  }, [activeCategory]);
+  }, [activeCategory, categorySets]);
 
   return (
     <section id="menu-experience" className="section-ivory border-y border-[var(--coffee-line)]">

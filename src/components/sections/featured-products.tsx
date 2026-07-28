@@ -1,16 +1,14 @@
 import { SectionTitle } from "./section-title";
 import { LuxuryCafeProductCard } from "@/components/menu/luxury-cafe-product-card";
-import { grainsProducts, gelatoProducts, tartesGlaceesProducts } from "@/lib/sample-products";
+import { getPublicProducts } from "@/lib/products-public";
 
-export function FeaturedProductsSection() {
-  const featured = [
-    { ...grainsProducts[0], badge: "signature" as const },
-    { ...grainsProducts[4], badge: "bestseller" as const },
-    { ...gelatoProducts[1], badge: "new" as const },
-    { ...gelatoProducts[2], badge: undefined },
-    { ...tartesGlaceesProducts[0], badge: "signature" as const },
-    { ...tartesGlaceesProducts[3], badge: undefined },
-  ];
+export async function FeaturedProductsSection() {
+  const products = await getPublicProducts();
+
+  const featured = products.slice(0, 6).map((product, index) => ({
+    ...product,
+    badge: index === 0 ? ("signature" as const) : index === 1 ? ("bestseller" as const) : undefined,
+  }));
 
   return (
     <section className="page-shell py-20 sm:py-28">

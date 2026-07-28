@@ -1,8 +1,13 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import { productSchema } from "@/lib/product-schema";
-import { getServiceSupabase } from "@/lib/supabase/server";
+import { z } from "zod";
 import { getAdminSessionFromCookieStore } from "@/lib/admin-auth";
+import { getServiceSupabase } from "@/lib/supabase/server";
+
+const categorySchema = z.object({
+  name: z.string().min(2).max(120),
+  isActive: z.boolean().optional().default(true),
+});
 
 export async function GET(request: Request) {
   const includeInactiveParam = new URL(request.url).searchParams.get("includeInactive");
@@ -11,15 +16,14 @@ export async function GET(request: Request) {
   const includeInactive = includeInactiveParam === "1" && Boolean(adminSession.user);
 
   const supabase = getServiceSupabase();
-
   if (!supabase) {
     return NextResponse.json({ error: "Supabase is not configured" }, { status: 500 });
   }
 
   let query = supabase
-    .from("products")
-    .select("id, category, type, name, description, origin, price, image_url, is_active, created_at")
-    .order("created_at", { ascending: false });
+    .from("categories")
+    .select("id, name, is_active, created_at")
+    .order("name", { ascending: true });
 
   if (!includeInactive) {
     query = query.eq("is_active", true);
@@ -31,20 +35,14 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  const products = data.map((item) => ({
-    id: item.id,
-    category: item.category,
-    type: item.type,
-    name: item.name,
-    description: item.description,
-    origin: item.origin,
-    price: item.price,
-    imageUrl: item.image_url,
-    isActive: item.is_active,
-    createdAt: item.created_at,
-  }));
-
-  return NextResponse.json({ products });
+  return NextResponse.json({
+    categories: data.map((item) => ({
+      id: item.id,
+      name: item.name,
+      isActive: item.is_active,
+      createdAt: item.created_at,
+    })),
+  });
 }
 
 export async function POST(request: Request) {
@@ -58,26 +56,19 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Supabase is not configured" }, { status: 500 });
   }
 
-  const body = await request.json();
-  const payload = productSchema.safeParse(body);
-
+  const body = (await request.json().catch(() => null)) as unknown;
+  const payload = categorySchema.safeParse(body);
   if (!payload.success) {
     return NextResponse.json({ error: payload.error.issues[0]?.message || "Invalid payload" }, { status: 400 });
   }
 
   const { data, error } = await supabase
-    .from("products")
+    .from("categories")
     .insert({
-      category: payload.data.category,
-      type: payload.data.type,
       name: payload.data.name,
-      description: payload.data.description,
-      origin: payload.data.origin,
-      price: payload.data.price,
-      image_url: payload.data.imageUrl,
-      is_active: payload.data.isActive ?? true,
+      is_active: payload.data.isActive,
     })
-    .select("id, category, type, name, description, origin, price, image_url, is_active, created_at")
+    .select("id, name, is_active, created_at")
     .single();
 
   if (error) {
@@ -85,15 +76,9 @@ export async function POST(request: Request) {
   }
 
   return NextResponse.json({
-    product: {
+    category: {
       id: data.id,
-      category: data.category,
-      type: data.type,
       name: data.name,
-      description: data.description,
-      origin: data.origin,
-      price: data.price,
-      imageUrl: data.image_url,
       isActive: data.is_active,
       createdAt: data.created_at,
     },

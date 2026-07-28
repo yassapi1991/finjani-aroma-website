@@ -1,12 +1,17 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import { productSchema } from "@/lib/product-schema";
-import { getServiceSupabase } from "@/lib/supabase/server";
+import { z } from "zod";
 import { getAdminSessionFromCookieStore } from "@/lib/admin-auth";
+import { getServiceSupabase } from "@/lib/supabase/server";
 
 interface Params {
   params: Promise<{ id: string }>;
 }
+
+const categoryUpdateSchema = z.object({
+  name: z.string().min(2).max(120).optional(),
+  isActive: z.boolean().optional(),
+});
 
 export async function PUT(request: Request, { params }: Params) {
   const session = await getAdminSessionFromCookieStore(await cookies());
@@ -19,29 +24,23 @@ export async function PUT(request: Request, { params }: Params) {
     return NextResponse.json({ error: "Supabase is not configured" }, { status: 500 });
   }
 
-  const body = await request.json();
-  const payload = productSchema.safeParse(body);
-
+  const body = (await request.json().catch(() => null)) as unknown;
+  const payload = categoryUpdateSchema.safeParse(body);
   if (!payload.success) {
     return NextResponse.json({ error: payload.error.issues[0]?.message || "Invalid payload" }, { status: 400 });
   }
 
   const { id } = await params;
 
+  const updates: { name?: string; is_active?: boolean } = {};
+  if (typeof payload.data.name === "string") updates.name = payload.data.name;
+  if (typeof payload.data.isActive === "boolean") updates.is_active = payload.data.isActive;
+
   const { data, error } = await supabase
-    .from("products")
-    .update({
-      category: payload.data.category,
-      type: payload.data.type,
-      name: payload.data.name,
-      description: payload.data.description,
-      origin: payload.data.origin,
-      price: payload.data.price,
-      image_url: payload.data.imageUrl,
-      is_active: payload.data.isActive ?? true,
-    })
+    .from("categories")
+    .update(updates)
     .eq("id", id)
-    .select("id, category, type, name, description, origin, price, image_url, is_active, created_at")
+    .select("id, name, is_active, created_at")
     .single();
 
   if (error) {
@@ -49,22 +48,16 @@ export async function PUT(request: Request, { params }: Params) {
   }
 
   return NextResponse.json({
-    product: {
+    category: {
       id: data.id,
-      category: data.category,
-      type: data.type,
       name: data.name,
-      description: data.description,
-      origin: data.origin,
-      price: data.price,
-      imageUrl: data.image_url,
       isActive: data.is_active,
       createdAt: data.created_at,
     },
   });
 }
 
-export async function DELETE(request: Request, { params }: Params) {
+export async function DELETE(_request: Request, { params }: Params) {
   const session = await getAdminSessionFromCookieStore(await cookies());
   if (!session.user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -77,8 +70,33 @@ export async function DELETE(request: Request, { params }: Params) {
 
   const { id } = await params;
 
-  const { error } = await supabase.from("products").delete().eq("id", id);
+  const { data: categoryData, error: categoryError } = await supabase
+    .from("categories")
+    .select("name")
+    .eq("id", id)
+    .single();
 
+  if (categoryError) {
+    return NextResponse.json({ error: categoryError.message }, { status: 500 });
+  }
+
+  const { count, error: productsError } = await supabase
+    .from("products")
+    .select("id", { count: "exact", head: true })
+    .eq("category", categoryData.name);
+
+  if (productsError) {
+    return NextResponse.json({ error: productsError.message }, { status: 500 });
+  }
+
+  if ((count ?? 0) > 0) {
+    return NextResponse.json(
+      { error: "Impossible de supprimer une catégorie utilisée par des produits." },
+      { status: 400 }
+    );
+  }
+
+  const { error } = await supabase.from("categories").delete().eq("id", id);
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }

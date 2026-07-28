@@ -1,6 +1,6 @@
 "use client";
 
-import { ProductCategory, CATEGORY_LABELS } from "@/lib/types";
+import { ProductCategory } from "@/lib/types";
 
 const filters: Array<"Tous" | ProductCategory> = [
   "Tous",
@@ -11,7 +11,9 @@ const filters: Array<"Tous" | ProductCategory> = [
 
 const filterLabels: Record<"Tous" | ProductCategory, string> = {
   Tous: "Tous",
-  ...CATEGORY_LABELS,
+  "Café en Grains": "Café en Grains",
+  "Gelato Italiano": "Gelato Italiano",
+  "Tartes Glacées": "Tartes Glacées",
 };
 
 interface FilterBarProps {

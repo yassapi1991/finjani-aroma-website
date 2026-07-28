@@ -11,51 +11,49 @@ import { QrMenu } from "@/components/menu/qr-menu";
 import { CategoryGrid, MenuCategory } from "@/components/menu/category-grid";
 import { getWhatsAppUrl } from "@/lib/brand";
 import { Product } from "@/lib/types";
-import {
-  grainsProducts,
-  gelatoProducts,
-  tartesGlaceesProducts,
-} from "@/lib/sample-products";
 
-const allProducts: { [key: string]: Product[] } = {
-  "cafe-en-grains": grainsProducts,
-  "gelato-italiano": gelatoProducts,
-  "tartes-glacees": tartesGlaceesProducts,
-};
+function slugifyCategory(value: string) {
+  return value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
 
-const menuCategories: MenuCategory[] = [
-  {
-    id: "grains",
-    label: "Maison du Café",
-    title: "Café en Grains",
-    description: "Sélections de grains premium Finjani Aroma, profils aromatiques nobles et torréfaction maîtrisée.",
-    href: "#cafe-en-grains",
-    icon: "☕",
-  },
-  {
-    id: "gelato",
-    label: "Atelier Gelato",
-    title: "Gelato Italiano",
-    description: "Une collection artisanale italienne aux textures veloutées et saveurs raffinées.",
-    icon: "🍨",
-    href: "#gelato-italiano",
-  },
-  {
-    id: "tartes",
-    label: "Créations Dessert",
-    title: "Tartes Glacées",
-    description: "Desserts glacés premium et créations signature pour les moments d'exception.",
-    href: "#tartes-glacees",
-    icon: "🎂",
-  },
-];
+function getCategoryMeta(category: string) {
+  const normalized = category.toLowerCase();
 
-const filterOptions: MenuFilterOption[] = [
-  { id: "all", label: "Tous les Produits", icon: "✨", count: 0 },
-  { id: "cafe-en-grains", label: "Café en Grains", icon: "☕", count: 0 },
-  { id: "gelato-italiano", label: "Gelato Italiano", icon: "🍨", count: 0 },
-  { id: "tartes-glacees", label: "Tartes Glacées", icon: "🎂", count: 0 },
-];
+  if (normalized.includes("cafe")) {
+    return {
+      label: "Maison du Café",
+      icon: "☕",
+      description: "Sélections de grains premium Finjani Aroma, profils aromatiques nobles et torréfaction maîtrisée.",
+    };
+  }
+
+  if (normalized.includes("gelato")) {
+    return {
+      label: "Atelier Gelato",
+      icon: "🍨",
+      description: "Une collection artisanale italienne aux textures veloutées et saveurs raffinées.",
+    };
+  }
+
+  if (normalized.includes("tarte")) {
+    return {
+      label: "Créations Dessert",
+      icon: "🎂",
+      description: "Desserts glacés premium et créations signature pour les moments d'exception.",
+    };
+  }
+
+  return {
+    label: "Collection Signature",
+    icon: "✨",
+    description: "Produits premium sélectionnés pour une expérience Finjani Aroma raffinée.",
+  };
+}
 
 function MenuSection({
   id,
@@ -138,28 +136,55 @@ function MenuSection({
   );
 }
 
-export function MenuPageContent() {
+export function MenuPageContent({ initialProducts }: { initialProducts: Product[] }) {
   const [activeFilter, setActiveFilter] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
 
-  // Calculate product counts
-  const filterOptionsWithCounts = filterOptions.map((filter) => ({
-    ...filter,
-    count:
-      filter.id === "all"
-        ? Object.values(allProducts).flat().length
-        : (allProducts[filter.id as keyof typeof allProducts]?.length || 0),
-  }));
+  const allProducts = useMemo(() => initialProducts.filter((item) => item.isActive !== false), [initialProducts]);
+
+  const categories = useMemo(() => {
+    const unique = Array.from(new Set(allProducts.map((item) => item.category))).filter(Boolean);
+    return unique.map((category) => {
+      const slug = slugifyCategory(category);
+      const meta = getCategoryMeta(category);
+      return {
+        id: slug,
+        slug,
+        category,
+        menu: {
+          id: slug,
+          label: meta.label,
+          title: category,
+          description: meta.description,
+          href: `#${slug}`,
+          icon: meta.icon,
+        } as MenuCategory,
+      };
+    });
+  }, [allProducts]);
+
+  const productsByCategory = useMemo(() => {
+    return categories.reduce<Record<string, Product[]>>((acc, category) => {
+      acc[category.slug] = allProducts.filter((item) => item.category === category.category);
+      return acc;
+    }, {});
+  }, [allProducts, categories]);
+
+  const filterOptions = useMemo<MenuFilterOption[]>(() => {
+    return [
+      { id: "all", label: "Tous les Produits", icon: "✨", count: allProducts.length },
+      ...categories.map((category) => ({
+        id: category.slug,
+        label: category.category,
+        icon: category.menu.icon,
+        count: productsByCategory[category.slug]?.length || 0,
+      })),
+    ];
+  }, [allProducts.length, categories, productsByCategory]);
 
   // Filter products based on active filter and search query
   const filteredProducts = useMemo(() => {
-    let products: Product[] = [];
-
-    if (activeFilter === "all") {
-      products = Object.values(allProducts).flat();
-    } else {
-      products = allProducts[activeFilter as keyof typeof allProducts] || [];
-    }
+    let products = activeFilter === "all" ? [...allProducts] : [...(productsByCategory[activeFilter] || [])];
 
     // Apply search filter
     if (searchQuery.trim()) {
@@ -173,7 +198,7 @@ export function MenuPageContent() {
     }
 
     return products;
-  }, [activeFilter, searchQuery]);
+  }, [activeFilter, allProducts, productsByCategory, searchQuery]);
 
   const whatsappHref = getWhatsAppUrl();
 
@@ -188,14 +213,14 @@ export function MenuPageContent() {
           />
 
           <div className="mt-12">
-            <CategoryGrid categories={menuCategories} />
+            <CategoryGrid categories={categories.map((item) => item.menu)} />
           </div>
         </div>
       </div>
 
-      <div id="cafe-en-grains" className="scroll-mt-24" />
-      <div id="gelato-italiano" className="scroll-mt-24" />
-      <div id="tartes-glacees" className="scroll-mt-24" />
+      {categories.map((category) => (
+        <div key={category.id} id={category.slug} className="scroll-mt-24" />
+      ))}
 
       <MenuSection
         id="all-products"
@@ -205,7 +230,7 @@ export function MenuPageContent() {
         showFilters={true}
         activeFilter={activeFilter}
         searchQuery={searchQuery}
-        filterOptions={filterOptionsWithCounts}
+        filterOptions={filterOptions}
         onFilterChange={setActiveFilter}
         onSearchChange={setSearchQuery}
       />

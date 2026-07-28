@@ -2,11 +2,12 @@
 
 import { FormEvent, Suspense, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { FiLock, FiUser } from "react-icons/fi";
 
 function AdminLoginContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const redirectTarget = useMemo(() => searchParams.get("redirect") || "/admin", [searchParams]);
+  const redirectTarget = useMemo(() => searchParams.get("redirect") || "/admin/dashboard", [searchParams]);
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -40,59 +41,67 @@ function AdminLoginContent() {
   }
 
   return (
-    <div className="section-ivory min-h-[calc(100vh-220px)] py-16 sm:py-24">
-      <div className="page-shell max-w-lg">
-        <article className="rounded-3xl border border-[var(--coffee-line)] bg-[var(--coffee-cream)] p-8 shadow-[0_16px_42px_rgba(115,82,50,0.14)] sm:p-10">
-          <p className="text-[11px] uppercase tracking-[0.24em] text-[var(--coffee-gold)]">Espace Sécurisé</p>
-          <h1 className="mt-3 font-serif text-4xl text-[var(--coffee-ink)]">Connexion Admin</h1>
-          <p className="mt-3 text-sm leading-relaxed text-[var(--coffee-muted)]">
-            Connectez-vous pour gérer les produits, les prix et les visuels du catalogue Finjani Aroma.
-          </p>
+    <div className="min-h-screen bg-[radial-gradient(circle_at_top,#dbeafe_0%,#f8fafc_45%,#f1f5f9_100%)] px-4 py-10 sm:py-14">
+      <div className="mx-auto max-w-5xl">
+        <div className="grid overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-[0_24px_80px_rgba(15,23,42,0.2)] lg:grid-cols-[1.1fr_1fr]">
+          <aside className="hidden bg-gradient-to-br from-slate-900 via-slate-800 to-slate-700 p-10 text-white lg:block">
+            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-300">Finjani Aroma</p>
+            <h1 className="mt-4 text-4xl font-bold leading-tight">Professional Admin CMS</h1>
+            <p className="mt-4 text-sm leading-relaxed text-slate-200">
+              Manage products, categories, media, and settings from one secure control panel.
+            </p>
+          </aside>
 
-          <form className="mt-7 space-y-4" onSubmit={submit}>
-            <div>
-              <label className="mb-1.5 block text-[11px] uppercase tracking-[0.16em] text-[var(--coffee-gold)]" htmlFor="admin-email">
-                Email
+          <article className="p-8 sm:p-10">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Secure Access</p>
+            <h2 className="mt-2 text-3xl font-bold tracking-tight text-slate-900">Sign in to Admin</h2>
+            <p className="mt-2 text-sm text-slate-600">Use your administrator credentials to continue.</p>
+
+            <form className="mt-7 space-y-4" onSubmit={submit}>
+              <label className="block space-y-1.5">
+                <span className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">Username</span>
+                <span className="relative block">
+                  <FiUser className="pointer-events-none absolute left-3 top-3 h-4 w-4 text-slate-400" />
+                  <input
+                    id="admin-email"
+                    type="email"
+                    autoComplete="username"
+                    required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="w-full rounded-xl border border-slate-200 py-2.5 pl-9 pr-3 text-sm outline-none ring-slate-900/10 transition focus:border-slate-400 focus:ring-4"
+                  />
+                </span>
               </label>
-              <input
-                id="admin-email"
-                type="email"
-                autoComplete="username"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full rounded-xl border border-[var(--coffee-line)] bg-white px-4 py-3 text-sm outline-none transition focus:border-[var(--coffee-gold)]"
-              />
-            </div>
 
-            <div>
-              <label className="mb-1.5 block text-[11px] uppercase tracking-[0.16em] text-[var(--coffee-gold)]" htmlFor="admin-password">
-                Mot de Passe
+              <label className="block space-y-1.5">
+                <span className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">Password</span>
+                <span className="relative block">
+                  <FiLock className="pointer-events-none absolute left-3 top-3 h-4 w-4 text-slate-400" />
+                  <input
+                    id="admin-password"
+                    type="password"
+                    autoComplete="current-password"
+                    required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="w-full rounded-xl border border-slate-200 py-2.5 pl-9 pr-3 text-sm outline-none ring-slate-900/10 transition focus:border-slate-400 focus:ring-4"
+                  />
+                </span>
               </label>
-              <input
-                id="admin-password"
-                type="password"
-                autoComplete="current-password"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full rounded-xl border border-[var(--coffee-line)] bg-white px-4 py-3 text-sm outline-none transition focus:border-[var(--coffee-gold)]"
-              />
-            </div>
 
-            {error ? (
-              <p className="rounded-xl border border-red-300/70 bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>
-            ) : null}
+              {error ? <p className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p> : null}
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="btn-lux-primary w-full justify-center px-5 py-3 text-xs font-semibold uppercase tracking-[0.18em] disabled:opacity-70"
-            >
-              {loading ? "Connexion..." : "Se Connecter"}
-            </button>
-          </form>
-        </article>
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full rounded-xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800 disabled:opacity-70"
+              >
+                {loading ? "Signing in..." : "Sign In"}
+              </button>
+            </form>
+          </article>
+        </div>
       </div>
     </div>
   );

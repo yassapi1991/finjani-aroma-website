@@ -3,13 +3,19 @@ import type { NextRequest } from "next/server";
 import {
   ADMIN_DASHBOARD_PATH,
   ADMIN_LOGIN_PATH,
+  applyAdminSessionCookies,
+  clearAdminSessionCookies,
+  getAdminSessionFromCookieStore,
   isAdminAuthConfigured,
-  verifyAdminSessionToken,
 } from "@/lib/admin-auth";
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  if (!pathname.startsWith("/admin")) {
+  const isAdminPageRoute = pathname.startsWith("/admin");
+  const isProtectedApiRoute =
+    pathname.startsWith("/api/admin") || pathname.startsWith("/api/products") || pathname.startsWith("/api/categories");
+
+  if (!isAdminPageRoute && !isProtectedApiRoute) {
     return NextResponse.next();
   }
 
@@ -17,28 +23,44 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  const token = request.cookies.get("finjani_admin_session")?.value;
-  const session = await verifyAdminSessionToken(token);
-  const isAuthenticated = Boolean(session);
+  const sessionState = await getAdminSessionFromCookieStore(request.cookies);
+  const isAuthenticated = Boolean(sessionState.user);
   const isLoginRoute = pathname === ADMIN_LOGIN_PATH;
 
-  if (!isAuthenticated && !isLoginRoute) {
+  if (isAdminPageRoute && !isAuthenticated && !isLoginRoute) {
     const loginUrl = request.nextUrl.clone();
     loginUrl.pathname = ADMIN_LOGIN_PATH;
     loginUrl.searchParams.set("redirect", pathname);
-    return NextResponse.redirect(loginUrl);
+    const response = NextResponse.redirect(loginUrl);
+    clearAdminSessionCookies(response);
+    return response;
   }
 
-  if (isAuthenticated && isLoginRoute) {
+  if (isAdminPageRoute && isAuthenticated && isLoginRoute) {
     const dashboardUrl = request.nextUrl.clone();
     dashboardUrl.pathname = ADMIN_DASHBOARD_PATH;
     dashboardUrl.search = "";
-    return NextResponse.redirect(dashboardUrl);
+    const response = NextResponse.redirect(dashboardUrl);
+    if (sessionState.session) {
+      applyAdminSessionCookies(response, sessionState.session);
+    }
+    return response;
   }
 
-  return NextResponse.next();
+  const response = NextResponse.next();
+
+  if (sessionState.session) {
+    applyAdminSessionCookies(response, sessionState.session);
+  } else if (
+    request.cookies.get("finjani_admin_access_token")?.value ||
+    request.cookies.get("finjani_admin_refresh_token")?.value
+  ) {
+    clearAdminSessionCookies(response);
+  }
+
+  return response;
 }
 
 export const config = {
-  matcher: ["/admin/:path*"],
+  matcher: ["/admin/:path*", "/api/admin/:path*", "/api/products/:path*", "/api/categories/:path*"],
 };

@@ -1,18 +1,23 @@
 import { NextResponse } from "next/server";
 import {
-  ADMIN_SESSION_COOKIE,
-  ADMIN_SESSION_TTL_SECONDS,
-  createAdminSessionToken,
+  applyAdminSessionCookies,
+  clearAdminSessionCookies,
   isAdminAuthConfigured,
-  verifyAdminCredentials,
+  isAdminUser,
 } from "@/lib/admin-auth";
+import { getAnonSupabase } from "@/lib/supabase/server";
 
 export async function POST(request: Request) {
   if (!isAdminAuthConfigured()) {
     return NextResponse.json(
-      { error: "Configuration admin incomplète côté serveur." },
+      { error: "Supabase Auth admin configuration is incomplete." },
       { status: 500 }
     );
+  }
+
+  const supabase = getAnonSupabase();
+  if (!supabase) {
+    return NextResponse.json({ error: "Supabase Auth client is not configured." }, { status: 500 });
   }
 
   const body = (await request.json().catch(() => null)) as
@@ -26,23 +31,26 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Email et mot de passe requis." }, { status: 400 });
   }
 
-  const ok = await verifyAdminCredentials(email, password);
-  if (!ok) {
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email,
+    password,
+  });
+
+  if (error || !data.user || !data.session) {
     return NextResponse.json({ error: "Identifiants invalides." }, { status: 401 });
   }
 
-  const token = await createAdminSessionToken(email.toLowerCase());
-  const response = NextResponse.json({ success: true });
+  if (!isAdminUser(data.user)) {
+    const response = NextResponse.json({ error: "Acces admin refuse pour cet utilisateur." }, { status: 403 });
+    clearAdminSessionCookies(response);
+    return response;
+  }
 
-  response.cookies.set({
-    name: ADMIN_SESSION_COOKIE,
-    value: token,
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    path: "/",
-    maxAge: ADMIN_SESSION_TTL_SECONDS,
+  const response = NextResponse.json({
+    success: true,
+    email: data.user.email,
   });
+  applyAdminSessionCookies(response, data.session);
 
   return response;
 }

@@ -1,7 +1,4 @@
-export type ProductCategory =
-  | "Café en Grains"
-  | "Gelato Italiano"
-  | "Tartes Glacées";
+export type ProductCategory = string;
 
 export type CoffeeType = "Grains" | "Moulu";
 
@@ -22,6 +19,7 @@ export interface Product {
   priceNote?: string; // e.g. "125g" for beans
   variants?: ProductVariant[];
   createdAt?: string;
+  isActive?: boolean;
 }
 
 export interface ProductInput {
@@ -34,10 +32,13 @@ export interface ProductInput {
   imageUrl: string;
   priceNote?: string;
   variants?: ProductVariant[];
+  isActive?: boolean;
 }
 
-export const CATEGORY_LABELS: Record<ProductCategory, string> = {
-  "Café en Grains": "Café en Grains",
-  "Gelato Italiano": "Gelato Italiano",
-  "Tartes Glacées": "Tartes Glacées",
-};
+export interface Category {
+  id: string;
+  name: string;
+  isActive: boolean;
+  createdAt?: string;
+}
+
