@@ -8,6 +8,9 @@ import { BrandValuesSection } from "@/components/sections/brand-values-section";
 import { TestimonialsSection } from "@/components/sections/testimonials-section";
 import { PremiumOrderExperienceSection } from "@/components/sections/premium-order-experience";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export default function Home() {
   return (
     <div className="overflow-x-clip">

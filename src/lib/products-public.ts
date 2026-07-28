@@ -1,7 +1,9 @@
 import { getServiceSupabase } from "@/lib/supabase/server";
+import { unstable_noStore as noStore } from "next/cache";
 import { Product } from "@/lib/types";
 
 export async function getPublicProducts(): Promise<Product[]> {
+  noStore();
   const supabase = getServiceSupabase();
 
   if (!supabase) {

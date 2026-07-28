@@ -2,6 +2,9 @@ import type { Metadata } from "next";
 import { MenuPageContent } from "@/components/menu/menu-page-content";
 import { getPublicProducts } from "@/lib/products-public";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export const metadata: Metadata = {
   title: "Notre Menu",
   description: "Découvrez le menu premium Finjani Aroma : café en grains, gelato italiano et tartes glacées signature.",
