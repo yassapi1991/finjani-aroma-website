@@ -26,11 +26,13 @@ export function getServiceSupabase() {
 }
 
 export function getAnonSupabase() {
-  if (!supabaseUrl || !anonKey || isPlaceholder(supabaseUrl) || isPlaceholder(anonKey)) {
+  const authKey = anonKey || serviceKey;
+
+  if (!supabaseUrl || !authKey || isPlaceholder(supabaseUrl) || isPlaceholder(authKey)) {
     return null;
   }
 
-  return createClient(supabaseUrl, anonKey, {
+  return createClient(supabaseUrl, authKey, {
     auth: {
       autoRefreshToken: false,
       persistSession: false,

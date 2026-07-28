@@ -39,7 +39,10 @@ function hasConfiguredEnv(value: string | undefined) {
 }
 
 export function isAdminAuthConfigured() {
-  return hasConfiguredEnv(process.env.NEXT_PUBLIC_SUPABASE_URL) && hasConfiguredEnv(process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
+  return (
+    hasConfiguredEnv(process.env.NEXT_PUBLIC_SUPABASE_URL) &&
+    (hasConfiguredEnv(process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) || hasConfiguredEnv(process.env.SUPABASE_SERVICE_ROLE_KEY))
+  );
 }
 
 export function isAdminUser(user: User | null | undefined) {
